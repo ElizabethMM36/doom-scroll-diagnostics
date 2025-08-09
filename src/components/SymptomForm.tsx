@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
+import { Card } from "./ui/card.tsx";
+import { Badge } from "./ui/badge.tsx";
+import { Button } from "./ui/button.tsx";
+import { Input } from "./ui/input.tsx";
 import { ArrowRight, Plus, X, AlertTriangle } from "lucide-react";
 
 interface SymptomFormProps {
-  onNext: (symptoms: string[], severity: number) => void;
+  onNext: (data: {
+    name: string;
+    age: number;
+    gender: string;
+    symptoms: string[];
+    severity: number;
+  }) => void;
   onBack: () => void;
 }
 
@@ -19,6 +25,10 @@ const commonSymptoms = [
 ];
 
 export function SymptomForm({ onNext, onBack }: SymptomFormProps) {
+  const [name, setName] = useState("");
+  const [age, setAge] = useState<number | "">("");
+  const [gender, setGender] = useState("");
+
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [customSymptom, setCustomSymptom] = useState("");
   const [severity, setSeverity] = useState(5);
@@ -41,8 +51,14 @@ export function SymptomForm({ onNext, onBack }: SymptomFormProps) {
   };
 
   const handleSubmit = () => {
-    if (symptoms.length > 0) {
-      onNext(symptoms, severity);
+    if (name.trim() && age && gender && symptoms.length > 0) {
+      onNext({
+        name,
+        age: Number(age),
+        gender,
+        symptoms,
+        severity
+      });
     }
   };
 
@@ -55,6 +71,32 @@ export function SymptomForm({ onNext, onBack }: SymptomFormProps) {
             <p className="text-muted-foreground">
               Select your symptoms for our <span className="gradient-danger-text font-semibold">catastrophic analysis</span>
             </p>
+          </div>
+
+          {/* Name / Age / Gender */}
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <Input
+              type="number"
+              placeholder="Age"
+              value={age}
+              onChange={(e) => setAge(e.target.value ? Number(e.target.value) : "")}
+              min={0}
+            />
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="border rounded-md px-3 py-2 bg-background text-foreground"
+            >
+              <option value="">Select Gender</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
 
           {/* Selected Symptoms */}
@@ -163,7 +205,7 @@ export function SymptomForm({ onNext, onBack }: SymptomFormProps) {
             <Button
               variant="danger"
               onClick={handleSubmit}
-              disabled={symptoms.length === 0}
+              disabled={!name.trim() || !age || !gender || symptoms.length === 0}
               className="animate-pulse-glow"
             >
               Continue to Personality Test

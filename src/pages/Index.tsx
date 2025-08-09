@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { LandingPage } from "@/components/LandingPage";
-import { SymptomForm } from "@/components/SymptomForm";
-import { PersonalityTest } from "@/components/PersonalityTest";
-import { DiagnosisResult } from "@/components/DiagnosisResult";
+import { LandingPage } from "../components/LandingPage.tsx";
+import { SymptomForm } from "../components/SymptomForm.tsx";
+import { PersonalityTest } from "../components/PersonalityTest.tsx";
+import { DiagnosisResult } from "../components/DiagnosisResult.tsx";
 
 type Screen = 'landing' | 'symptoms' | 'personality' | 'diagnosis';
 
+// Interface updated: `severity` has been removed.
+interface SymptomData {
+  name: string;
+  age: number;
+  gender: string;
+  symptoms: string[];
+}
+
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('landing');
-  const [symptoms, setSymptoms] = useState<string[]>([]);
-  const [severity, setSeverity] = useState<number>(0);
+  const [formData, setFormData] = useState<SymptomData | null>(null);
   const [personalityScore, setPersonalityScore] = useState<number>(0);
 
   const handleStart = () => {
     setCurrentScreen('symptoms');
   };
 
-  const handleSymptomsNext = (selectedSymptoms: string[], selectedSeverity: number) => {
-    setSymptoms(selectedSymptoms);
-    setSeverity(selectedSeverity);
+  const handleSymptomsNext = (data: SymptomData) => {
+    setFormData(data);
     setCurrentScreen('personality');
   };
 
@@ -28,8 +34,7 @@ const Index = () => {
   };
 
   const handleRestart = () => {
-    setSymptoms([]);
-    setSeverity(0);
+    setFormData(null);
     setPersonalityScore(0);
     setCurrentScreen('landing');
   };
@@ -62,9 +67,13 @@ const Index = () => {
         <PersonalityTest onNext={handlePersonalityNext} onBack={handleBack} />
       )}
       
-      {currentScreen === 'diagnosis' && (
+      {currentScreen === 'diagnosis' && formData && (
+        // Component call updated: `severity` prop has been removed.
         <DiagnosisResult 
-          symptoms={symptoms}
+          name={formData.name}
+          age={formData.age}
+          gender={formData.gender}
+          symptoms={formData.symptoms}
           personalityScore={personalityScore}
           onRestart={handleRestart}
         />

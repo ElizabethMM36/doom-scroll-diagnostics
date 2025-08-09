@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Skull, Heart, Flame, Cloud, ArrowRight, Activity } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Button } from "../components/ui/button.tsx";
+import { Card } from "../components/ui/card.tsx";
+import { Progress } from "../components/ui/progress.tsx";
+import { Skull, Heart, Flame, Cloud, Activity } from "lucide-react";
 
+// Props interface updated: `severity` has been removed.
 interface DiagnosisResultProps {
+  name: string;
+  age: number;
+  gender: string;
   symptoms: string[];
   personalityScore: number;
   onRestart: () => void;
@@ -63,14 +67,17 @@ const diagnoses: Diagnosis[] = [
   }
 ];
 
-export function DiagnosisResult({ symptoms, personalityScore, onRestart }: DiagnosisResultProps) {
+// Ensure your .env.local file has VITE_GEMINI_API_KEY='YOUR_API_KEY'
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+// Component function updated: `severity` is removed from the destructured props.
+export function DiagnosisResult({ name, age, gender, symptoms, personalityScore, onRestart }: DiagnosisResultProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
   const [showAfterlife, setShowAfterlife] = useState(false);
 
   useEffect(() => {
-    // Simulate analysis process
     const interval = setInterval(() => {
       setAnalysisProgress(prev => {
         if (prev >= 100) {
@@ -89,52 +96,85 @@ export function DiagnosisResult({ symptoms, personalityScore, onRestart }: Diagn
   }, []);
 
   const generateDiagnosis = async () => {
+    if (!GEMINI_API_KEY) {
+        console.error("Gemini API key not found. Falling back to local diagnosis.");
+        generateFallbackDiagnosis();
+        return;
+    }
+
     try {
-      console.log('Calling Ollama for diagnosis...');
-      const { data, error } = await supabase.functions.invoke('generate-diagnosis', {
-        body: { symptoms, personalityScore }
-      });
+        console.log('Calling Gemini API for diagnosis...');
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
-      }
+        const prompt = `
+            You are a darkly humorous AI that generates fake, absurd, and catastrophic medical diagnoses for a web app.
+            A user has provided the following information:
+            - Name: ${name}
+            - Age: ${age}
+            - Gender: ${gender}
+            - Symptoms: ${symptoms.join(", ")}
+            - Personality Score (out of 50, higher is more anxious): ${personalityScore}
 
-      console.log('Received diagnosis from Ollama:', data);
-      setDiagnosis(data as Diagnosis);
-      
-      if (data.leadsToDeath) {
-        setTimeout(() => {
-          setShowAfterlife(true);
-        }, 3000);
-      }
+            Based on this, invent a creative, funny, and overly dramatic diagnosis.
+            Your response MUST be a valid JSON object with NO other text or markdown formatting.
+            The JSON object must conform to this exact structure:
+            {
+              "name": "string",
+              "description": "string",
+              "severity": "'mild' | 'moderate' | 'severe' | 'critical' | 'terminal'",
+              "prognosis": "string",
+              "timeRemaining": "string (e.g., '5 minutes', can be null)",
+              "leadsToDeath": boolean,
+              "afterlife": "'heaven' | 'hell' (can be null if leadsToDeath is false)"
+            }
+
+            Make the diagnosis reflect the absurdity of the input. A high personality score and many symptoms should lead to a more severe or terminal diagnosis. Be creative!
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        console.log('Received response from Gemini:', text);
+        
+        const cleanedJsonString = text.replace(/```json/g, "").replace(/```/g, "").trim();
+        const generatedDiagnosis = JSON.parse(cleanedJsonString) as Diagnosis;
+
+        setDiagnosis(generatedDiagnosis);
+
+        if (generatedDiagnosis.leadsToDeath) {
+            setTimeout(() => setShowAfterlife(true), 3000);
+        }
+
     } catch (error) {
-      console.error('Error generating diagnosis:', error);
-      
-      // Fallback to local diagnosis if Ollama fails
+        console.error('Error generating diagnosis with Gemini:', error);
+        generateFallbackDiagnosis();
+    }
+  };
+
+  const generateFallbackDiagnosis = () => {
+      console.log("Generating a fallback diagnosis locally.");
       const symptomSeverity = symptoms.length;
       const totalRisk = personalityScore + symptomSeverity * 2;
       
       let selectedDiagnosis: Diagnosis;
       
       if (totalRisk >= 35) {
-        selectedDiagnosis = personalityScore >= 30 ? diagnoses[0] : diagnoses[1];
+          selectedDiagnosis = personalityScore >= 30 ? diagnoses[0] : diagnoses[1];
       } else if (totalRisk >= 20) {
-        selectedDiagnosis = diagnoses[2];
+          selectedDiagnosis = diagnoses[2];
       } else if (totalRisk >= 10) {
-        selectedDiagnosis = diagnoses[3];
+          selectedDiagnosis = diagnoses[3];
       } else {
-        selectedDiagnosis = diagnoses[4];
+          selectedDiagnosis = diagnoses[4];
       }
       
       setDiagnosis(selectedDiagnosis);
       
       if (selectedDiagnosis.leadsToDeath) {
-        setTimeout(() => {
-          setShowAfterlife(true);
-        }, 3000);
+          setTimeout(() => setShowAfterlife(true), 3000);
       }
-    }
   };
 
   if (showAfterlife && diagnosis?.afterlife) {
@@ -202,7 +242,7 @@ export function DiagnosisResult({ symptoms, personalityScore, onRestart }: Diagn
             </div>
 
             <div className="text-xs text-muted-foreground space-y-1">
-              <p>• Consulting WebMD's darkest archives...</p>
+              <p>• Consulting the digital abyss for answers...</p>
               <p>• Amplifying worst-case scenarios...</p>
               <p>• Calculating existential dread coefficient...</p>
               <p>• Preparing final diagnosis...</p>
