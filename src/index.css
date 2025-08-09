@@ -2,41 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Dark Medical Theme Design System with Glass Morphism
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark medical theme */
+    --background: 220 25% 8%;
+    --background-secondary: 220 20% 12%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Glass morphism cards */
+    --card: 220 15% 15%;
+    --card-glass: 220 15% 15% / 0.1;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 15% 15%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Neon accent colors */
+    --primary: 200 100% 60%;
+    --primary-glow: 200 100% 80%;
+    --primary-foreground: 220 25% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 280 60% 50%;
+    --secondary-glow: 280 60% 70%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Medical/danger colors */
+    --danger: 0 85% 60%;
+    --danger-glow: 0 85% 80%;
+    --danger-foreground: 210 40% 98%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --warning: 45 95% 65%;
+    --warning-glow: 45 95% 85%;
+    --warning-foreground: 220 25% 8%;
 
-    --destructive: 0 84.2% 60.2%;
+    --success: 120 60% 50%;
+    --success-glow: 120 60% 70%;
+    --success-foreground: 210 40% 98%;
+
+    --muted: 220 15% 25%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 200 100% 60%;
+    --accent-foreground: 220 25% 8%;
+
+    --destructive: 0 85% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 15% 25%;
+    --border-glass: 220 15% 35% / 0.3;
+    --input: 220 15% 20%;
+    --ring: 200 100% 60%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-danger: linear-gradient(135deg, hsl(var(--danger)), hsl(var(--danger-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-background: linear-gradient(180deg, hsl(var(--background)), hsl(var(--background-secondary)));
+    --gradient-glass: linear-gradient(135deg, hsl(var(--card-glass)), transparent);
+
+    /* Shadows and glows */
+    --shadow-glass: 0 8px 32px hsl(var(--background) / 0.8);
+    --shadow-glow: 0 0 30px hsl(var(--primary) / 0.3);
+    --shadow-danger-glow: 0 0 30px hsl(var(--danger) / 0.3);
+    --shadow-success-glow: 0 0 30px hsl(var(--success) / 0.3);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +139,93 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-background);
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  /* Glass morphism effects */
+  .glass {
+    @apply backdrop-blur-xl border border-border-glass;
+    background: var(--gradient-glass);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-card {
+    @apply glass rounded-2xl p-6;
+  }
+
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glow-danger {
+    box-shadow: var(--shadow-danger-glow);
+  }
+
+  .glow-success {
+    box-shadow: var(--shadow-success-glow);
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent;
+  }
+
+  .gradient-danger-text {
+    @apply bg-gradient-to-r from-danger to-danger-glow bg-clip-text text-transparent;
+  }
+
+  .gradient-secondary-text {
+    @apply bg-gradient-to-r from-secondary to-secondary-glow bg-clip-text text-transparent;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+}
+
+@keyframes pulse-glow {
+  from {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  to {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
