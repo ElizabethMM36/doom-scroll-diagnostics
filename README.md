@@ -1,4 +1,6 @@
-DR.Strange🎯
+<img width="1263" height="473" alt="image" src="https://github.com/user-attachments/assets/768b1752-5eda-4740-87fb-2d021ea2fdf4" />
+
+ # DR.Strange🎯
 
 
 
