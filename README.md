@@ -1,9 +1,20 @@
 DR.Strange🎯
+
+
+
 Basic Details
+
+
 Team Name: 200ok
+
+
+
 Team Members
 •	Member 1 ELIZABETH MARIAM MATHEW-SOE
 •	Member 2: GAYATHRI KUPPAM-SOE
+
+
+
 Project Description
 DR.strangediagnoses you with the worst possible disease for whatever symptoms you may be experiencing. To make the experience even more dramatic, it features a personality test: the worse your personality, the grimmer your diagnosis. Sometimes, you’re “diagnosed” straight to (virtual) heaven or hell!
 The Problem (that doesn't exist)
