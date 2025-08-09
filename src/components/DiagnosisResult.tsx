@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skull, Heart, Flame, Cloud, ArrowRight, Activity } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DiagnosisResultProps {
   symptoms: string[];
@@ -13,7 +14,7 @@ interface DiagnosisResultProps {
 interface Diagnosis {
   name: string;
   description: string;
-  severity: 'mild' | 'moderate' | 'severe' | 'terminal';
+  severity: 'mild' | 'moderate' | 'severe' | 'critical' | 'terminal';
   prognosis: string;
   timeRemaining?: string;
   leadsToDeath: boolean;
@@ -87,30 +88,52 @@ export function DiagnosisResult({ symptoms, personalityScore, onRestart }: Diagn
     return () => clearInterval(interval);
   }, []);
 
-  const generateDiagnosis = () => {
-    // Calculate diagnosis based on symptoms and personality
-    const symptomSeverity = symptoms.length;
-    const totalRisk = personalityScore + symptomSeverity * 2;
-    
-    let selectedDiagnosis: Diagnosis;
-    
-    if (totalRisk >= 35) {
-      // Terminal diagnosis - personality determines afterlife
-      selectedDiagnosis = personalityScore >= 30 ? diagnoses[0] : diagnoses[1];
-    } else if (totalRisk >= 20) {
-      selectedDiagnosis = diagnoses[2];
-    } else if (totalRisk >= 10) {
-      selectedDiagnosis = diagnoses[3];
-    } else {
-      selectedDiagnosis = diagnoses[4];
-    }
-    
-    setDiagnosis(selectedDiagnosis);
-    
-    if (selectedDiagnosis.leadsToDeath) {
-      setTimeout(() => {
-        setShowAfterlife(true);
-      }, 3000);
+  const generateDiagnosis = async () => {
+    try {
+      console.log('Calling Ollama for diagnosis...');
+      const { data, error } = await supabase.functions.invoke('generate-diagnosis', {
+        body: { symptoms, personalityScore }
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      console.log('Received diagnosis from Ollama:', data);
+      setDiagnosis(data as Diagnosis);
+      
+      if (data.leadsToDeath) {
+        setTimeout(() => {
+          setShowAfterlife(true);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Error generating diagnosis:', error);
+      
+      // Fallback to local diagnosis if Ollama fails
+      const symptomSeverity = symptoms.length;
+      const totalRisk = personalityScore + symptomSeverity * 2;
+      
+      let selectedDiagnosis: Diagnosis;
+      
+      if (totalRisk >= 35) {
+        selectedDiagnosis = personalityScore >= 30 ? diagnoses[0] : diagnoses[1];
+      } else if (totalRisk >= 20) {
+        selectedDiagnosis = diagnoses[2];
+      } else if (totalRisk >= 10) {
+        selectedDiagnosis = diagnoses[3];
+      } else {
+        selectedDiagnosis = diagnoses[4];
+      }
+      
+      setDiagnosis(selectedDiagnosis);
+      
+      if (selectedDiagnosis.leadsToDeath) {
+        setTimeout(() => {
+          setShowAfterlife(true);
+        }, 3000);
+      }
     }
   };
 
