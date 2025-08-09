@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button.tsx";
 import { Activity, Brain, Heart, Skull } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
 
@@ -33,8 +33,8 @@ export function LandingPage({ onStart }: LandingPageProps) {
           {/* Main Title */}
           <div className="mb-8">
             <h1 className="text-6xl md:text-8xl font-bold mb-4">
-              <span className="gradient-text">HYPOCHONDRI</span>
-              <span className="gradient-danger-text">APP</span>
+              <span className="gradient-text">DR.</span>
+              <span className="gradient-danger-text">STRANGE</span>
             </h1>
             <div className="w-32 h-1 bg-gradient-to-r from-primary to-danger mx-auto mb-6"></div>
           </div>
