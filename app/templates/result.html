@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hypochondriapp Result</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Hypochondriapp</h1>
+    <p class="tag">Parody only. Not medical advice.</p>
+
+    <div class="card">
+      <h2>Worst-Case Diagnosis</h2>
+      <p><strong>Symptoms</strong>: {{ symptoms }}</p>
+      <p><strong>Personality Score</strong>: {{ score }}/100</p>
+      <hr />
+      <p><strong>Disease</strong>: {{ result.disease_name }}</p>
+      <p><strong>Severity</strong>: {{ result.severity }}</p>
+      <p><strong>Prognosis</strong>: {{ result.prognosis }}</p>
+      <p><strong>Death Outcome</strong>: {{ 'Yes' if result.death_outcome else 'No' }}</p>
+      <p><strong>Afterlife</strong>: {{ result.afterlife }}</p>
+      <p><strong>Reasoning</strong>: {{ result.reasoning }}</p>
+      <p><strong>Recommended Action</strong>: {{ result.recommended_action }}</p>
+    </div>
+
+    <a class="back" href="/">← Try again</a>
+
+    <footer>
+      <small>Built with FastAPI + Gemini. Parody only.</small>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hypochondriapp (Gemini)</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Hypochondriapp</h1>
+    <p class="tag">Absolutely not medical advice. Parody app for laughs.</p>
+
+    <form method="post" action="/diagnose" class="card">
+      <label for="symptoms">Describe your symptoms</label>
+      <textarea id="symptoms" name="symptoms" rows="4" placeholder="e.g., headache, sore throat, mild cough" required></textarea>
+
+      <h2>Personality Test (1 = Strongly Disagree, 5 = Strongly Agree)</h2>
+      <div class="questions">
+        {% for q in questions %}
+          <div class="q">
+            <label>{{ loop.index }}. {{ q.prompt }}</label>
+            <div class="scale">
+              {% for v in [1,2,3,4,5] %}
+                <label class="radio">
+                  <input type="radio" name="q_{{ loop.parent.index0 }}" value="{{ v }}" {% if v == 3 %}checked{% endif %}>
+                  <span>{{ v }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit">Diagnose Me (Dramatically)</button>
+    </form>
+
+    <footer>
+      <small>Built with FastAPI + Gemini. Parody only.</small>
+    </footer>
+  </div>
+</body>
+</html>
